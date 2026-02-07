@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import emailjs from 'emailjs-com';
+import emailjs from '@emailjs/browser';
+
 
 const questions = [
   "Will you be my Valentine? 💘",
@@ -33,6 +34,8 @@ const questions = [
   "I've never wanted anything more 💯 Will you be my Valentine?",
   "PLEASE I'M DESPERATE NOW 😩 Will you be my Valentine?"
 ];
+emailjs.init(import.meta.env.VITE_EMAILJS_PUBLIC_KEY);
+
 
 function App() {
   const [noPosition, setNoPosition] = useState({ x: 0, y: 0 });
@@ -106,17 +109,17 @@ function App() {
             ? 'User clicked YES and accepted'
             : 'User started the Valentine flow',
         email: 'no-reply@valentine.app'
-      },
-      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+      }
     ).then(
       () => {
-        console.log('Email sent');
+        console.log('✅ Email sent');
       },
       (error) => {
-        console.error('Email failed:', error);
+        console.error('❌ Email failed:', error);
       }
     );
   };
+
 
   const handleContinueClick = () => {
     if (name) {
