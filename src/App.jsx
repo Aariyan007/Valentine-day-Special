@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import emailjs from 'emailjs-com';
 
 const questions = [
   "Will you be my Valentine? 💘",
@@ -41,9 +42,9 @@ function App() {
   const [accepted, setAccepted] = useState(false);
 
   const questionIndex = Math.min(noCount, questions.length - 1);
-  const yesButtonSize = Math.min(1 + noCount * 0.3, 5); 
-  const noButtonSize = Math.max(1 - noCount * 0.035, 0.01); 
-  const noButtonOpacity = noCount >= questions.length - 1 ? 0 : Math.max(1 - noCount * 0.04, 0.1); 
+  const yesButtonSize = Math.min(1 + noCount * 0.3, 5);
+  const noButtonSize = Math.max(1 - noCount * 0.035, 0.01);
+  const noButtonOpacity = noCount >= questions.length - 1 ? 0 : Math.max(1 - noCount * 0.04, 0.1);
 
   const handleNoClick = () => {
     setNoCount(noCount + 1);
@@ -54,12 +55,12 @@ function App() {
 
   const moveNoButton = () => {
     const isMobile = window.innerWidth < 640;
-    const containerWidth = Math.min(window.innerWidth - 40, 900); 
+    const containerWidth = Math.min(window.innerWidth - 40, 900);
     const containerHeight = isMobile ? 300 : 250;
 
     const buttonWidth = isMobile ? 130 : 160; // Approximate button width
     const buttonHeight = 60; // Approximate button height
-    const yesButtonSpace = isMobile ? 120 : 180; 
+    const yesButtonSpace = isMobile ? 120 : 180;
     const safeMargin = 20; // Minimum distance from edges
 
     const maxX = Math.min(containerWidth / 2 - buttonWidth - safeMargin, isMobile ? 100 : 200);
@@ -74,7 +75,7 @@ function App() {
       y = (Math.random() - 0.5) * maxY * 2;
       attempts++;
       const distance = Math.sqrt(x * x + y * y);
-      const minDistance = yesButtonSpace + 30; 
+      const minDistance = yesButtonSpace + 30;
 
       if (distance > minDistance || attempts >= maxAttempts) {
         break;
@@ -93,33 +94,29 @@ function App() {
   };
 
   // Function to send email notification
-  const sendEmail = async (userName, action) => {
-    try {
-      await fetch('https://api.emailjs.com/api/v1.0/email/send', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          service_id: import.meta.env.VITE_EMAILJS_SERVICE_ID,
-          template_id: import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
-          user_id: import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
-          template_params: {
-            title: 'Valentine App 💘',
-            name: userName,
-            message:
-              action === 'accepted'
-                ? 'User clicked YES and accepted the Valentine'
-                : 'User entered their name and started the Valentine flow',
-            email: 'no-reply@valentine.app'
-          }
-        })
-      });
-    } catch (error) {
-      console.error('Email failed:', error);
-    }
+  const sendEmail = (userName, action) => {
+    emailjs.send(
+      import.meta.env.VITE_EMAILJS_SERVICE_ID,
+      import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+      {
+        title: 'Valentine App 💘',
+        name: userName,
+        message:
+          action === 'accepted'
+            ? 'User clicked YES and accepted'
+            : 'User started the Valentine flow',
+        email: 'no-reply@valentine.app'
+      },
+      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+    ).then(
+      () => {
+        console.log('Email sent');
+      },
+      (error) => {
+        console.error('Email failed:', error);
+      }
+    );
   };
-
 
   const handleContinueClick = () => {
     if (name) {
@@ -191,7 +188,7 @@ function App() {
       background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
       padding: '20px',
       fontFamily: 'Arial, sans-serif',
-      overflow: 'hidden', 
+      overflow: 'hidden',
       position: 'relative'
     }}>
       {!started ? (
